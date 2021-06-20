@@ -1,0 +1,137 @@
+<!DOCTYPE>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameOn</title>
+  <font face="Arial">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+
+<body>
+
+  <div class="menu-btn">
+    <i class="fas fa-bars fa-2x"></i>
+  </div>
+
+  <div class="container">
+    <nav class="nav-main">
+      <img src="img/brand.jpg" alt="GameOn Logo" class="nav-brand">
+      <ul class="nav-menu">
+        <li>
+          <a class="nav-link" href="loginvista.html" data-toggle="model" data-target="#signupModel">Inicia Sesion </a>
+        </li>
+        <li>
+          <a href="https://www.levelup.com/reviews">Reviews</a>
+        </li>
+        <li>
+          <a href="https://www.levelup.com/tag/trailers/tab/noticias">Trailers</a>
+        </li>
+        <li>
+          <a href="https://www.levelup.com/noticias">Noticias</a>
+        </li>
+        <li>
+          <a href="https://www.levelup.com/categoria/xbox/tab/noticias">Xbox One</a>
+        </li>
+        <li>
+          <a href="https://www.levelup.com/tag/PlayStation%204">PS4</a>
+        </li>
+        <li>
+          <a href="https://www.levelup.com/tag/nintendo">Switch</a>
+        </li>
+        <li>
+          <a href="foro.html">Foro</a>
+        </li>
+      </ul>
+
+      <ul class="nav-menu-right">
+        <li>
+          <a href="#">
+            <i class="fas fa-search"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    
+    <div class="container p-4">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <ul class="list-group post">
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <input type="file" id="campoarchivo">
+
+    <button type="button" class="subir" id="uploadTask">Subir</button>
+    <div id="mensaje"></div>
+  
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script>
+      // Initialize Firebase
+      var firebaseConfig = {
+      apiKey: "AIzaSyAL5VlEe8gkfDmt4KlUY9SuhJLslfGTKeA",
+      authDomain: "gameon-cb9a1.firebaseapp.com",
+      projectId: "gameon-cb9a1",
+      storageBucket: "gameon-cb9a1.appspot.com",
+      messagingSenderId: "379068308418",
+      appId: "1:379068308418:web:2035f53989e75b6b79945b",
+      measurementId: "G-QJJSX45DHY"
+      };
+      firebase.initializeApp(config);
+  
+      // Servicios de APIs Firebase
+      var authService = firebase.auth();
+      var storageService = firebase.storage();
+  
+      window.onload = function() {
+        // realizamos la autenticación anónima (debe estar activada en la consola de Firebase)
+        authService.signInAnonymously()
+          .catch(function(error) {
+            console.error('Detectado error de autenticación', error);
+          });
+  
+        // asociamos el manejador de eventos sobre el INPUT FILE
+        document.getElementById('campoarchivo').addEventListener('change', function(evento){
+          evento.preventDefault();
+          var archivo  = evento.target.files[0];
+          subirArchivo(archivo);
+        });
+      }
+  
+      // función que se encargará de subir el archivo
+      function subirArchivo(archivo) {
+        // creo una referencia al lugar donde guardaremos el archivo
+        var refStorage = storageService.ref('micarpeta').child(archivo.name);
+        // Comienzo la tarea de upload
+        var uploadTask = refStorage.put(archivo);
+  
+        // defino un evento para saber qué pasa con ese upload iniciado
+        uploadTask.on('state_changed', null,
+          function(error){
+            console.log('Error al subir el archivo', error);
+          },
+          function(){
+            console.log('Subida completada');
+            mensajeFinalizado(uploadTask.snapshot.downloadURL, uploadTask.snapshot.totalBytes);
+          }
+        );
+      }
+  
+      // a esta función la invocamos para mostrar el mensaje final después del upload
+      function mensajeFinalizado(url, bytes) {
+        var elMensaje = document.getElementById('mensaje');
+        var textoMensaje = '<p>Subido el archivo!';
+        textoMensaje += '<br>Bytes subidos: ' + bytes;
+        textoMensaje += '<br><a href="' + url + '">Ver el fichero</a></p>';
+        elMensaje.innerHTML = textoMensaje;
+      }
+    </script>
+    </body>
+    </html>
